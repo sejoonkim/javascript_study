@@ -713,3 +713,310 @@
 
     console.log(Parent.age, Child.age); // 20 20
     ```
+
+## Promise
+
+- 비동기 작업이 맞이할 미래의 완료 또는 실패와 그 결과 값을 나타낸다.
+
+- 형태: Promise(executor함수)
+
+- 만드는 순간 pending 상태가 된다. Resolve 함수 실행 -> fulfilled 상태가 된다.
+
+- 실무: 함수의 실행과 동시에 프로미스 객체를 리턴하기
+
+  - ```javascript
+    function p() {
+      return new Promise((resolve, reject) => {
+        // pending
+        setTimeout(() => {
+          reject(); //resolve(); // fulfilled
+        }, 1000);
+      });
+    }
+
+    p()
+      .then(() => {
+        console.log("after 1000ms gets fulfilled");
+      })
+      .catch(() => {
+        console.log("after 1000ms gets rejected");
+      });
+    ```
+
+- then callback 함수의 인자로 받기 feat. message
+
+  - ```javascript
+    function p() {
+      return new Promise((resolve, reject) => {
+        // pending
+        setTimeout(() => {
+          resolve("Hello"); // fulfilled
+        }, 1000);
+      });
+    }
+
+    p()
+      .then(message => {
+        console.log("after 1000ms gets fulfilled", message);
+      })
+      .catch(() => {
+        console.log("after 1000ms gets rejected");
+      });
+    ```
+
+- catch callback 함수의 인자로 받기
+
+  - ```javascript
+    function p() {
+      return new Promise((resolve, reject) => {
+        // pending
+        setTimeout(() => {
+          reject(new Error("error")); // fulfilled
+        }, 1000);
+      });
+    }
+
+    p()
+      .then(message => {
+        console.log("after 1000ms gets fulfilled", message);
+      })
+      .catch(error => {
+        console.log("after 1000ms gets rejected", error);
+      });
+    ```
+
+- .finally()
+
+  - ```javascript
+    function p() {
+      return new Promise((resolve, reject) => {
+        // pending
+        setTimeout(() => {
+          reject(new Error("error")); // fulfilled
+        }, 1000);
+      });
+    }
+
+    p()
+      .then(message => {
+        console.log("after 1000ms gets fulfilled", message);
+      })
+      .catch(error => {
+        console.log("after 1000ms gets rejected", error);
+      })
+      .finally(() => {
+        console.log("end");
+      });
+    ```
+
+- callback ~ then
+
+  - ```javascript
+    function p() {
+      return new Promise((resolve, reject) => {
+        // pending
+        setTimeout(() => {
+          resolve(); // fulfilled
+        }, 1000);
+      });
+    }
+
+    p()
+      .then(() => {
+        return p();
+      })
+      .then(() => p())
+      .then(p)
+      .then(() => {
+        console.log("4000ms later gets fulfilled");
+      });
+    ```
+
+- 다른 Promise 생성 방법
+
+  - Promise.resolve(): 어떤 객체가 Promise 객체인지 아닌지 모를 때 사용한다.
+
+    - ```javascript
+      Promise.resolve(
+        new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve("abc");
+          }, 1000);
+        })
+      ).then(data => {
+        console.log("if Promise, get resolve result, then is executed", data);
+      });
+
+      Promise.resolve("bar").then(data => {
+        console.log("no then method, gets executed", data);
+      });
+      //RESULT:
+      //no then method, gets executed bar
+      //if Promise, get resolve result, then is executed abc
+      ```
+
+  - Promise.reject()
+
+    - ```javascript
+      Promise.reject(new Error("reason"))
+        .then(error => {})
+        .catch(error => {
+          console.log(error);
+        });
+      ```
+
+  - Promise.all()
+
+    - Promise 객체를 여러 개 생성하고 배열에 넣기 -> 모든 객체들이 fulfilled 되었을 때, then 함수가 실행된다. 인자로 객체들의 resolve 인자값을 배열로 돌려준다.
+
+    - ```javascript
+      function p(ms) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve(ms);
+          }, ms);
+        });
+      }
+
+      Promise.all([p(1000), p(2000), p(3000)]).then(messages => {
+        console.log("All fulfilled, then gets executed", messages);
+      });
+      // All fulfilled, then gets executed [ 1000, 2000, 3000 ]
+      ```
+
+  - Promise.race() - 가장 빠르게 resolve된 객체의 인자가 then에서 받아진다.
+
+    - ```javascript
+      function p(ms) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve(ms);
+          }, ms);
+        });
+      }
+
+      Promise.race([p(1000), p(2000), p(3000)]).then(messages => {
+        console.log("The fastest gets fulfilled, then gets executed", messages);
+      });
+      // The fastest gets fulfilled, then gets executed 1000
+      ```
+
+## Async, Await
+
+- 형태: async function Func(){} // const Func = async() => {}
+
+- resolve()
+
+  - ```javascript
+    function p(ms) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(ms);
+        }, ms);
+      });
+    }
+
+    (async function main() {
+      const ms = await p(1000);
+      console.log(`${ms} ms 후에 실행된다.`);
+    })();
+    // RESULT:
+    // 1000 ms 후에 실행된다.
+    ```
+
+- reject()
+
+  - ```javascript
+    function p(ms) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          //resolve(ms);
+          reject(new Error("reason"));
+        }, ms);
+      });
+    }
+
+    (async function main() {
+      try {
+        const ms = await p(1000);
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+    ```
+
+- Promise & async~await
+
+  - ```javascript
+    function p(ms) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(ms);
+        }, ms);
+      });
+    }
+
+    async function asyncP() {
+      const ms = await p(1000);
+      return "abcd" + ms;
+    }
+
+    (async function main() {
+      try {
+        const name = await asyncP();
+        console.log(name);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        console.log("end");
+      }
+    })();
+    ```
+
+- 연속되는 Promise vs 연속되는 Async~await
+
+  - ```javascript
+    function p(ms) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(ms);
+        }, ms);
+      });
+    }
+    p(1000)
+      .then(() => p(1000))
+      .then(() => p(1000))
+      .then(() => {
+        console.log("3000 ms 후에 실행");
+      });
+
+    // 한 줄씩 처리과정을 볼 수 있어 편할 수 있다.
+    (async function main() {
+      await p(1000);
+      await p(1000);
+      await p(1000);
+      console.log("3000 ms 후에 실행");
+    });
+    ```
+
+- .all(), .race()
+
+  - ```javascript
+    function p(ms) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(ms);
+        }, ms);
+      });
+    }
+
+    (async function main() {
+      const results = await Promise.all([p(1000), p(2000), p(3000)]);
+      console.log(results);
+    })();
+
+    (async function main() {
+      const results = await Promise.race([p(1000), p(2000), p(3000)]);
+      console.log(results);
+    })();
+    ```

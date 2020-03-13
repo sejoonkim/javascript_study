@@ -398,3 +398,318 @@
       ```
 
 - 프로토타입 체인, 객체들을 연결하기, .prototype
+
+  - ```javascript
+    function Person(name, age) {
+      this.name = name;
+      this.age = age;
+      //   this.hello = function() {
+      //     console.log("hello", this.name, this.age);
+      //   };
+    }
+
+    Person.prototype.hello = function() {
+      console.log("hello", this.name, this.age);
+    };
+
+    const p = new Person("abcd", 20);
+
+    p.hello(); // hello abcd 20
+    console.log(p.toString()); //호출 가능하다! [object Object]
+
+    console.log(Person.prototype); // Person { hello: [Function] }
+    console.log(Person.prototype.toString); // [Function: toString]
+    console.log(Person.prototype.constructor); // [Function: Person]
+
+    console.log(Person.hello); // undefined
+    console.log(Person.prototype.hello); // [Function]
+
+    console.log(Object.prototype); // {}
+    console.log(Object.prototype.toString); // [Function: toString]
+    console.log(Object.prototype.constructor); // [Function: Object]
+
+    console.log(p instanceof Person); // true
+    console.log(p instanceof Object); // true
+    ```
+
+* 프로토타입 이용한 객체 확장
+
+  - ```javascript
+    function Person() {}
+
+    Person.prototype.hello = function() {
+      console.log("hello");
+    };
+
+    function Korean(region) {
+      this.region = region;
+      this.where = function() {
+        console.log("where", this.region);
+      };
+    }
+
+    Korean.prototype = Person.prototype;
+
+    const k = new Korean("Seoul");
+
+    k.hello();
+    k.where();
+
+    console.log(k instanceof Korean); // true
+    console.log(k instanceof Person); // true
+    console.log(k instanceof Object); // true
+    ```
+
+  - k는 Korean, Person, Object 순서로 속해있다.
+
+- 객체 리터럴
+
+  - 문자가 직접 객체 생성에 적용되는 방법
+
+    - ```javascript
+      const a = {};
+
+      console.log(a, typeof a);
+
+      const b = {
+        name: "abcd"
+      };
+
+      console.log(b, typeof b);
+
+      const c = {
+        name: "abcd",
+        hello1() {
+          console.log("hello1", this.name);
+        },
+        hello2: function() {
+          console.log("hello2", this.name);
+        },
+        hello3: () => {
+          console.log("hello3", this.name);
+        }
+      };
+
+      c.hello1();
+      c.hello2();
+      c.hello3(); // undefined
+      ```
+
+* 표준 내장 객체
+
+  - runtime에 이미 만들어진 객체: Object 기초객체, new Function(), 등등
+
+  - slice()의 경우
+
+    - ```javascript
+      console.log(a.slice(0, 1)); // [ 'red' ]
+      console.log(Array.prototype.slice, Object.prototype.slice); // [Function: slice] undefined
+      ```
+
+## Class
+
+- ES6에 추가되었다.
+
+- 객체를 새롭게 만들 수 있는 방법이다.
+
+- 선언하기
+
+  - 선언적 방식
+
+    - ```javascript
+      // 선언적 방식
+      class A {}
+
+      console.log(new A());
+      ```
+
+  - 변수 할당 방식
+
+    - ```javascript
+      // class 표현식을 변수에 할당하기
+      const B = class {};
+
+      console.log(new B());
+      ```
+
+- Hoisting은 일어나지 않는다.
+
+- Constructor
+
+  - ```javascript
+    class C {
+      constructor(name, age) {
+        console.log("constructor", name, age);
+      }
+    }
+
+    console.log(new C("abcd", 20));
+    ```
+
+- get, set
+
+  - ```javascript
+    class A {
+      // 내부적인 변수 선언
+      _name = "no name";
+
+      get name() {
+        return this._name;
+      }
+
+      set name(value) {
+        this._name = value;
+      }
+    }
+    ```
+
+  - readonly = setter가 없는 경우
+
+- static 변수, 함수
+
+  - ```javascript
+    class A {
+      static name = "Hello";
+      static age = 20;
+      static hello() {
+        console.log(A.age);
+      }
+    }
+
+    console.log(A, A.age); // [Function: Hello] { name: 'Hello', age: 20 } 20
+    ```
+
+### Member Variable, property of a Class
+
+- 멤버 변수
+
+  - ```javascript
+    class A {
+      constructor(name, age) {
+        this.name = name;
+        this.age = age;
+      }
+    }
+
+    console.log(new A("abcd", 20));
+    ```
+
+  - 12 버전 이상 권장, runtime 주의하기
+
+    - ```javascript
+      class B {
+        name; // this.name, undefined
+        age; // this.age, undefined
+      }
+      ```
+
+    - ```javascript
+      class C {
+        name = "no name";
+        age = 0;
+
+        constructor(name, age) {
+          this.name = name;
+          this.age = age;
+        }
+      }
+      new C("name", 20);
+      ```
+
+- 멤버 함수
+
+  - 2가지 선언 방식
+
+    - ```javascript
+      class A {
+        hello1() {
+          console.log("function");
+        }
+
+        hello2 = () => {
+          console.log("arrow");
+        };
+      }
+      ```
+
+### Extends
+
+- Basic class inheritance
+
+  - ```javascript
+    class Parent {
+      name = "Kim";
+
+      hello() {
+        console.log("hello", this.name);
+      }
+    }
+
+    class Child extends Parent {}
+
+    const p = new Parent();
+    const c = new Child();
+
+    console.log(p, c); // Parent { name: 'Kim' } Child { name: 'Kim' }
+    ```
+
+- Override
+
+  - ```javascript
+    class Parent {
+      name = "Kim";
+
+      hello() {
+        console.log("hello", this.name);
+      }
+    }
+
+    class Child extends Parent {
+      age = 20;
+      // age도 같이 출력된다.
+      hello() {
+        console.log("hello", this.name, this.age);
+      }
+    }
+    ```
+
+- Super
+
+  - ```javascript
+    class Parent {
+      name;
+
+      constructor(name) {
+        this.name = name;
+      }
+
+      hello() {
+        console.log("hello", this.name);
+      }
+    }
+
+    class Child extends Parent {
+      age;
+
+      constructor(name, age) {
+        super(name); // child가 parent에서 상속 받을 때 생성자에서 꼭 필요하다.
+        this.age = age;
+      }
+
+      hello() {
+        console.log("hello", this.name, this.age);
+      }
+    }
+    ```
+
+- Static Interitance
+
+  - ```javascript
+    class Parent {
+      static age = 20;
+    }
+
+    class Child extends Parent {}
+
+    console.log(Parent.age, Child.age); // 20 20
+    ```

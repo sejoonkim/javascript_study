@@ -51,3 +51,104 @@
 // // {} object
 // // [Boolean: true] object
 // // { name: 'abcd' } object
+
+// function Person(name, age) {
+//   this.name = name;
+//   this.age = age;
+//   //   this.hello = function() {
+//   //     console.log("hello", this.name, this.age);
+//   //   };
+// }
+
+// Person.prototype.hello = function() {
+//   console.log("hello", this.name, this.age);
+// };
+
+// const p = new Person("abcd", 20);
+
+// p.hello(); // hello abcd 20
+// console.log(p.toString()); //호출 가능하다! [object Object]
+
+// console.log(Person.prototype); // Person { hello: [Function] }
+// console.log(Person.prototype.toString); // [Function: toString]
+// console.log(Person.prototype.constructor); // [Function: Person]
+
+// console.log(Person.hello); // undefined
+// console.log(Person.prototype.hello); // [Function]
+
+// console.log(Object.prototype); // {}
+// console.log(Object.prototype.toString); // [Function: toString]
+// console.log(Object.prototype.constructor); // [Function: Object]
+
+// console.log(p instanceof Person); // true
+// console.log(p instanceof Object); // true
+
+// prototype 상속
+
+// function Person() {}
+
+// Person.prototype.hello = function() {
+//   console.log("hello");
+// };
+
+// function Korean(region) {
+//   this.region = region;
+//   this.where = function() {
+//     console.log("where", this.region);
+//   };
+// }
+
+// Korean.prototype = Person.prototype;
+
+// const k = new Korean("Seoul");
+
+// k.hello();
+// k.where();
+
+// console.log(k instanceof Korean); // true
+// console.log(k instanceof Person); // true
+// console.log(k instanceof Object); // true
+
+// // 문자가 직접 객체에 적용되는 방법
+// const a = {};
+
+// console.log(a, typeof a);
+
+// const b = {
+//   name: "abcd"
+// };
+
+// console.log(b, typeof b);
+
+// const c = {
+//   name: "abcd",
+//   hello1() {
+//     console.log("hello1", this.name);
+//   },
+//   hello2: function() {
+//     console.log("hello2", this.name);
+//   },
+//   hello3: () => {
+//     console.log("hello3", this.name);
+//   }
+// };
+
+// c.hello1();
+// c.hello2();
+// c.hello3(); // undefined
+
+// 표준 내장 객체: Array
+const a = new Array("red", "black", "white");
+
+console.log(a, typeof a); // [ 'red', 'black', 'white' ] object
+console.log(a instanceof Array); // true
+console.log(a instanceof Object); // true
+
+const b = ["red", "green", "yellow"];
+
+console.log(b, typeof b); // [ 'red', 'green', 'yellow' ] object
+console.log(b instanceof Array); // true
+console.log(b instanceof Object); // true
+
+console.log(b.slice(0, 1)); // [ 'red' ]
+console.log(Array.prototype.slice, Object.prototype.slice); // [Function: slice] undefined
